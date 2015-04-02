@@ -3,7 +3,11 @@ import json, argparse, os, httplib2
 from apiclient.discovery import build
 # Get Credentials
 from oauth2client.client import OAuth2WebServerFlow
+from oauth2client.client import OAuth2Credentials
 from oauth2client.file import Storage
+# PyDrive
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
 
 def create_oauth_authorize_file(json_key_file):
     if os.path.isfile(json_key_file):
@@ -36,9 +40,6 @@ def create_google_drive_session(path_to_credentials_file):
         http = credentials.authorize(httplib2.Http())
         service = build('drive', 'v2', http=http)
         response = service.files().list().execute()
-        print response
-        for line in response:
-            print line
 
     except:
         print 'Error'
@@ -53,7 +54,12 @@ if __name__ == "__main__":
     key_file_path = args.key
     if os.path.isfile('credentials_file'):
         print 'Find credentials file, now start service.'
-        create_google_drive_session('credentials_file')
+        gauth = GoogleAuth()
+        gauth.credentials= OAuth2Credentials.from_json(open('credentials_file').read())
+        drive = GoogleDrive(gauth)
+        file_list = drive.ListFile({'q': "'root' in parents"}).GetList()
+        for file1 in file_list:
+          print 'title: %s, id: %s' % (file1['title'], file1['id'])
 
     else:
         print 'No credentials file, now create one.'
