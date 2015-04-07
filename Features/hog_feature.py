@@ -9,6 +9,11 @@ USAGE: hog_feature.py <image_names> ...
 This function is generate hog feature into file.
 '''
 
+def print_bins_info(bins):
+    print 'cols: %d' %(len(bins))
+    print 'rows: %d' %(len(bins[0]))
+    print 'bins: %d' %(len(bins[0][0]))
+
 def print_size_info(items):
     print 'cols: %d' %(len(items))
     print 'rows: %d' %(len(items[0]))
@@ -20,8 +25,12 @@ def hog_feature(image, num_of_bin):
 
     # quantizing binvalues in (0...num_of_bin)
     bins = np.int32(num_of_bin * ang/(2*np.pi))
+    print 'print_size_info: image'
     print_size_info(image)
+    print 'print_size_info: bins'
     print_size_info(bins)
+    print 'print_bins_info: bins'
+    print_bins_info(bins)
 
 
 if __name__ == "__main__":
