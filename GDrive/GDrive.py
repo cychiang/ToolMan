@@ -9,7 +9,7 @@ from oauth2client.file import Storage
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
-def create_oauth_authorize_file(json_key_file):
+def create_oauth_authorize_file(json_key_file, out_file_name):
     if os.path.isfile(json_key_file):
         print 'Accepted... Loading JSON Key File.'
         try:
@@ -25,7 +25,7 @@ def create_oauth_authorize_file(json_key_file):
             print 'Go to the following link in your browser: ' + authorize_url
             code = raw_input('Enter verification code: ').strip()
             credentials = flow.step2_exchange(code)
-            storage = Storage('credentials_file')
+            storage = Storage(out_file_name)
             storage.put(credentials)
 
         except:
@@ -48,10 +48,12 @@ if __name__ == "__main__":
     # --
     parser = argparse.ArgumentParser(description='Google Drive API.')
     parser.add_argument('-k', '--key', help='input google drive api json key.')
+    parser.add_argument('-o', '--out', help='output google drive api json key.')
 
     args = parser.parse_args()
     # parser key file
     key_file_path = args.key
+    out_file_name = args.out
     if os.path.isfile('credentials_file'):
         print 'Find credentials file, now start service.'
         gauth = GoogleAuth()
@@ -63,4 +65,4 @@ if __name__ == "__main__":
 
     else:
         print 'No credentials file, now create one.'
-        create_oauth_authorize_file(key_file_path)
+        create_oauth_authorize_file(key_file_path, out_file_name)
