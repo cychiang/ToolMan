@@ -36,16 +36,19 @@ def hog_feature(image, num_of_bin):
     print 'print_bins_info: bins'
     print_bins_info(bins)
 
-def hog_opencv_feature(image):
-    hog = cv2.HOGDescriptor()
+def hog_opencv_feature(image, winSize=(64,32), blockSize=(16,16), blockStride=(8,8), cellSize=(8,8), nbins=9):
+    # winSize, blockSize, blockStride, cellSize, nbins
+    hog = cv2.HOGDescriptor(winSize, blockSize, blockStride, cellSize, nbins)
     r = [[0,0]]
     descriptors = hog.compute(image,hog.blockStride,hog.cellSize,r)
     print_size_info(image)
     print 'model path: %s' %(os.path.dirname(cv2.__file__))
+    print 'hog winSize: %s' %(str(hog.winSize))
+    print 'hog blockSize: %s' %(str(hog.blockSize))
     print 'hog blockStride: %s' %(str(hog.blockStride))
     print 'hog cell size: %s' %(str(hog.cellSize))
+    print 'hog num of bins: %s' %(str(hog.nbins))
     print 'size of descriptors: %d' %(len(descriptors))
-
 
 if __name__ == "__main__":
     print 'version: %s' %(cv2.__version__)
@@ -65,7 +68,3 @@ if __name__ == "__main__":
         except:
             print 'loading error'
             continue
-
-
-
-
