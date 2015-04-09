@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-import itertools as it
-from glob import glob
-import cv2, sys, os
+import cv2, argparse
 
 help_message = '''
 USAGE: hog_feature.py <image_names> ...
@@ -36,35 +34,65 @@ def hog_feature(image, num_of_bin):
     print 'print_bins_info: bins'
     print_bins_info(bins)
 
-def hog_opencv_feature(image, winSize=(64,32), blockSize=(16,16), blockStride=(8,8), cellSize=(8,8), nbins=9):
-    # winSize, blockSize, blockStride, cellSize, nbins
-    hog = cv2.HOGDescriptor(winSize, blockSize, blockStride, cellSize, nbins)
-    r = [[0,0]]
-    descriptors = hog.compute(image,hog.blockStride,hog.cellSize,r)
-    print_size_info(image)
-    print 'model path: %s' %(os.path.dirname(cv2.__file__))
+def print_hog_info(hog):
     print 'hog winSize: %s' %(str(hog.winSize))
     print 'hog blockSize: %s' %(str(hog.blockSize))
     print 'hog blockStride: %s' %(str(hog.blockStride))
     print 'hog cell size: %s' %(str(hog.cellSize))
     print 'hog num of bins: %s' %(str(hog.nbins))
-    print 'size of descriptors: %d' %(len(descriptors))
+
+
+def hog_opencv_feature(image, winSize=(64,128), blockSize=(16,16), blockStride=(8,8), cellSize=(8,8), nbins=9):
+    # winSize, blockSize, blockStride, cellSize, nbins
+    hog = cv2.HOGDescriptor(winSize, blockSize, blockStride, cellSize, nbins)
+    r = [[0,0]]
+    descriptors = hog.compute(image, hog.blockStride, hog.cellSize, r)
+    # print_size_info(image)
+    # print_hog_info(hog)
+    # print 'size of descriptors: %d' %(len(descriptors))
+    return descriptors
 
 if __name__ == "__main__":
+    # command line argument:
+    # Initial argument
+    parser = argparse.ArgumentParser(description='This program is generate the hog feature into file.')
+    parser.add_argument('-f', '--file', help='Input: The list of target images')
+    parser.add_argument('-o', '--out', help='Output: The collection of hog features')
+
+    args = parser.parse_args()
+    input_file = args.file
+    output_file = args.out
+
     print 'version: %s' %(cv2.__version__)
 
-    for image_name in sys.argv[1:]:
+    fileList = open(input_file, 'r')
+    if fileList is not None:
+        descriptor_bucket = []
+
+        print 'Start create hog feature from list: %s' %(input_file)
+        for fileName in fileList:
+            try:
+                #.strip(): remove '/n' in the last of string.'
+                fileName = fileName.strip()
+                image = cv2.imread(fileName, cv2.CV_LOAD_IMAGE_GRAYSCALE)
+
+                if image is not None:
+                    descriptor_bucket.append(hog_opencv_feature(image))
+
+                else:
+                    print 'Failed to load image file: %s' %(fileName)
+                    continue
+
+            except:
+                print 'loading error: %s ' %(str(fileName))
+                contilnue
+
+        # write into file.
         try:
-            image = cv2.imread(image_name)
-            if image is None:
-                print 'Failed to load image file: %s' %(image)
-                continue
-            else:
-                print 'loading ... %s' %(image_name)
-
-            # hog_feature(image, 8)
-            hog_opencv_feature(image)
-
+            print 'Start write to file: "%s.npz"' %(output_file)
+            np.savez(output_file, *descriptor_bucket)
         except:
-            print 'loading error'
-            continue
+            print 'open file error.'
+            exit()
+
+        print 'Finish without any error.'
