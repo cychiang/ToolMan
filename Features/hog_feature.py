@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-import itertools as it
-from glob import glob
-import cv2, sys, os, argparse
+import cv2, argparse
 
 help_message = '''
 USAGE: hog_feature.py <image_names> ...
@@ -71,22 +69,30 @@ if __name__ == "__main__":
     if fileList is not None:
         descriptor_bucket = []
 
+        print 'Start create hog feature from list: %s' %(input_file)
         for fileName in fileList:
             try:
                 #.strip(): remove '/n' in the last of string.'
                 fileName = fileName.strip()
                 image = cv2.imread(fileName, cv2.CV_LOAD_IMAGE_GRAYSCALE)
+
                 if image is not None:
-                    print 'loading ... %s' %(fileName)
                     descriptor_bucket.append(hog_opencv_feature(image))
+
                 else:
                     print 'Failed to load image file: %s' %(fileName)
                     continue
 
-
             except:
                 print 'loading error: %s ' %(str(fileName))
-                continue
+                contilnue
 
-        print len(descriptor_bucket)
+        # write into file.
+        try:
+            print 'Start write to file: "%s.npz"' %(output_file)
+            np.savez(output_file, *descriptor_bucket)
+        except:
+            print 'open file error.'
+            exit()
 
+        print 'Finish without any error.'
