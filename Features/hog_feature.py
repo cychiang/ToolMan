@@ -85,7 +85,7 @@ if __name__ == "__main__":
 
             except:
                 print 'loading error: %s ' %(str(fileName))
-                contilnue
+                continue
 
         # write into file.
         try:

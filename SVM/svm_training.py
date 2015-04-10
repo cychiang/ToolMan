@@ -31,7 +31,6 @@ if __name__ == "__main__":
 
     for negtive_feature in negtive_features.files:
         training_data.append(negtive_features[negtive_feature])
-        # training_data = numpy.append(training_data, negtive_features[negtive_feature])
 
     # convert list to numpy.ndarray
     training_data = numpy.asarray(training_data)
